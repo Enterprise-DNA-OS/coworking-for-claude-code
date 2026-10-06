@@ -1,11 +1,57 @@
 [
   {
-    "name": "example",
-    "title": "TODO(author): the first document this industry must produce",
-    "for_each": "select gen_random_uuid() as id, 'Example' as name",
+    "name": "member-statement",
+    "title": "Draft member balance statement",
+    "for_each": "select id,name from cowork.members",
     "file": "name",
     "sections": [
-      { "title": "Details", "sql": "select 'replace me' as item, $1::text as record_id" }
+      {
+        "title": "Recorded charges",
+        "note": "Operational snapshot. Reconcile with the accounting ledger before use. Not a tax invoice or payment request.",
+        "sql": "select i.code,i.due_on,l.currency,i.amount_cents,i.paid_cents,i.amount_cents-i.paid_cents balance_cents from cowork.invoices i join cowork.members m on m.id=i.member_id join cowork.locations l on l.id=m.location_id where i.member_id=$1 order by i.due_on"
+      }
+    ]
+  },
+  {
+    "name": "renewal-brief",
+    "title": "Draft membership renewal brief",
+    "for_each": "select id,name from cowork.members where status='active'",
+    "file": "name",
+    "sections": [
+      {
+        "title": "Agreed membership",
+        "note": "Check signed agreement and dates before discussing renewal. Does not renew a contract or serve a notice.",
+        "sql": "select code,plan,space,start_on,end_on,renew_on,currency,monthly_cents,agreement_ref from cowork.membership_register where member_id=$1 and status='active' order by renew_on"
+      }
+    ]
+  },
+  {
+    "name": "room-run-sheet",
+    "title": "Room booking run sheet",
+    "for_each": "select id,name from cowork.spaces where kind='room'",
+    "file": "name",
+    "sections": [
+      {
+        "title": "Upcoming room use",
+        "sql": "select code,member,starts_at,ends_at,minutes from cowork.room_diary where space_id=$1 and ends_at>=current_date and status='confirmed' order by starts_at"
+      }
+    ]
+  },
+  {
+    "name": "safety-review",
+    "title": "Draft site evidence review",
+    "for_each": "select id,name from cowork.locations",
+    "file": "name",
+    "sections": [
+      {
+        "title": "Emergency plan evidence",
+        "note": "An evidence checklist, not an emergency plan or legal certification.",
+        "sql": "select name,jurisdiction,emergency_plan_ref,emergency_test_due from cowork.locations where id=$1"
+      },
+      {
+        "title": "Open actions",
+        "sql": "select code,name,owner,due_on from cowork.actions where location_id=$1 and status='open' order by due_on"
+      }
     ]
   }
 ]

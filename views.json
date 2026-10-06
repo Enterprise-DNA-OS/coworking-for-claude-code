@@ -1,13 +1,46 @@
 [
   {
     "name": "week",
-    "title": "This week",
-    "subtitle": "Coworking for Claude Code: what needs attention, rendered by npm run view",
+    "title": "This week at the space",
+    "subtitle": "Operating records. Amounts in cents, currencies kept separate.",
     "sections": [
       {
-        "title": "Needs attention",
-        "note": "TODO(author): point this at the industry's attention view (overdue, stuck, quiet).",
-        "sql": "select 'replace me' as item, 'TODO(author)' as why"
+        "title": "attention",
+        "sql": "select 'renewal' kind,code record,member detail,renew_on due_on from cowork.membership_register where status='active' and renew_on<=current_date+30 union all select 'arrears',code,member,due_on from cowork.arrears union all select 'action',code,name,due_on from cowork.actions where status='open' and due_on<=current_date+7 order by due_on,record"
+      },
+      {
+        "title": "occupancy",
+        "sql": "select code,name,kind,capacity,location,member,end_on from cowork.occupancy order by location,code"
+      },
+      {
+        "title": "room-diary",
+        "sql": "select code,member,room,location,starts_at,ends_at,status from cowork.room_diary where status<>'cancelled' and ends_at>=current_date order by starts_at,code"
+      },
+      {
+        "title": "compliance",
+        "sql": "select * from cowork.compliance order by rule,record"
+      }
+    ]
+  },
+  {
+    "name": "membership-health",
+    "title": "Membership and room use",
+    "sections": [
+      {
+        "title": "renewal-arrears",
+        "sql": "select x.code,x.member,x.renew_on,x.location,x.currency,(select sum(a.balance_cents) from cowork.arrears a where a.member_id=x.member_id) overdue_cents from cowork.membership_register x where x.status='active' and x.renew_on<=current_date+60 and exists(select 1 from cowork.arrears a where a.member_id=x.member_id) order by x.renew_on,x.code"
+      },
+      {
+        "title": "plan-mix",
+        "sql": "select location,currency,plan,count(*) memberships,sum(monthly_cents) monthly_cents from cowork.membership_register where status='active' and current_date between start_on and end_on group by location,currency,plan order by location,plan"
+      },
+      {
+        "title": "room-allowance",
+        "sql": "select m.code,m.name,l.currency,coalesce((select sum(x.room_minutes) from cowork.membership_register x where x.member_id=m.id and x.status='active' and current_date between x.start_on and x.end_on),0) allowance_minutes,coalesce((select sum(b.minutes) from cowork.room_diary b where b.member_id=m.id and b.status<>'cancelled' and b.starts_at>=date_trunc('month',current_date) and b.starts_at<date_trunc('month',current_date)+interval '1 month'),0) booked_minutes from cowork.members m join cowork.locations l on l.id=m.location_id where m.status='active' order by m.code"
+      },
+      {
+        "title": "room-revenue",
+        "sql": "select location,currency,room,sum(minutes) booked_minutes,sum(charge_cents) booked_charge_cents from cowork.room_diary where status<>'cancelled' and starts_at>=date_trunc('month',current_date) and starts_at<date_trunc('month',current_date)+interval '1 month' group by location,currency,room order by location,room"
       }
     ]
   }

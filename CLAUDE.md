@@ -1,43 +1,13 @@
 # Coworking for Claude Code: operating instructions
 
-This file is the brain. Claude Code reads it at the start of every session. It says who this is for, how work gets done, and the one right way to do each recurring job.
+For a coworking or serviced office operator managing memberships, room use, balances and the week's work. The operator supplies business identity, site policies and contract terms. Never infer them.
 
-## Who this is for
+Read current data through scripts/cowork.mjs. Route recurring work through .claude/commands/*.md. Every command listed in the README has a matching recipe. Start with /attention and /occupancy; /weekly-review combines attention, occupancy and compliance. Read docs/cli.md before a write and docs/compliance.md before interpreting evidence checks.
 
-- **Business:** [YOUR BUSINESS]
-- **Operator:** [YOUR NAME], [your role]
-- **What matters most:** [the one or two outcomes you care about]
+Use /add, /update and /log for supplied facts. Read the full member history before drafting. Ambiguous names list candidates and exit 1. Ask the operator to resolve them. /import follows docs/replace-nexudus.md and starts with a dry run. /export saves a private snapshot.
 
-Fill this in once. A worker with context knows. A worker without it guesses.
+Never send, take payments, alter door access, delete records or serve notices. Drafts stay in drafts/. Signed evidence is a reference supplied by the operator, not a claim that the system verified the document. Report missing data as missing. Keep currencies separate. Booked room charges are not receipts. Invoice paid_cents is a cumulative reconciled snapshot.
 
-## How to work
+Keep secrets and personal records outside Git. Use numbered migrations for customisation. Never edit an applied migration. Run npm test after changes. Local PGlite permits one process. Shared PostgreSQL needs explicit identity and access setup; do not expose owner credentials to users.
 
-1. **Take a brief, not a script.** The operator describes the outcome. You run the right command and present the answer.
-2. **Read before you write.** Before drafting anything about a record, read its full history first.
-3. **Plain language.** Short sentences. No filler. Numbers in tables.
-4. **Silent success, loud problems.** No play-by-play. Say what broke and what you did about it.
-5. **Stop at the line.** Anything that sends, deletes, or faces a customer waits for a yes in this session.
-
-## Routing table: one right way for each recurring job
-
-| When the operator asks for... | Use this |
-|---|---|
-| <!-- TODO(author): one row per slash command --> | `/...` |
-
-If an ask fits nothing here, run the CLI directly (`npm run <cli> -- --help`) and then propose a new command for it.
-
-## Hard rules
-
-- Never send email or messages from here. Draft to `drafts/`, a person sends.
-- Never delete records without an explicit yes in this session. Prefer marking closed or archived.
-- Never invent a record. If a name is ambiguous, list the candidates and ask.
-- The database is the source of truth. If the answer is not in it, say so.
-
-## Where things live
-
-- `scripts/` the CLI. `scripts/lib/db.mjs` picks `DATABASE_URL` (Postgres, Supabase) or the embedded database in `.data/`.
-- `supabase/migrations/` the schema, plain SQL. `npm run migrate` applies it.
-- `.claude/commands/` the slash commands. Add one every time the same ask comes twice.
-- `docs/` the thesis and the guide for moving off Nexudus.
-
-Built by Enterprise DNA. Installed and run for you as part of Omni: https://enterprisedna.co/omni/instead-of/nexudus
+Omni by Enterprise DNA installs, customises and runs the system: https://enterprisedna.co/omni/book?offer=replace-software&utm_campaign=nexudus&utm_medium=github
