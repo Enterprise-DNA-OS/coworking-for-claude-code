@@ -2,7 +2,7 @@
   {
     "name": "week",
     "title": "This week at the space",
-    "subtitle": "Operating records. Amounts in cents, currencies kept separate.",
+    "subtitle": "Operating records. Currencies kept separate. Booking times in UTC.",
     "sections": [
       {
         "title": "attention",
